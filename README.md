@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Features
 
-## Getting Started
+- Authentication using Supabase Auth
+- File Uploads using Supabase Storage
+- Database access with Drizzle ORM
+- Full Row Level Security (RLS) support
+- Dark Mode with Theme Provider
+- Form state management using the new `useFormState` and `useFormStatus` hooks
+- Fully responsive design using Tailwind CSS
 
-First, run the development server:
+## Set up database user that respects RLS and grant access to all tables
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sql
+create role app_user with login password 'app_user';
+grant select, insert, update, delete on all tables in schema public to app_user;
+alter default privileges in schema public grant select, insert, update, delete on tables to app_user;
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Manually enable RLS policies after creating tables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Use the dashboard to enable RLS policies for each table.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+# Set up Storage
 
-## Learn More
+- Create a new storage bucket and set the `STORAGE_BUCKET` environment variable to the bucket name.
+- Create the following storage policies for the bucket:
 
-To learn more about Next.js, take a look at the following resources:
+## Access own files
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Name: `Access own files`
+- Allowed operation: `SELECT`
+- Target roles: (default)
+- Policy definition:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```sql
+bucket_id = 'Files' and owner_id = auth.uid()::text and (storage.foldername(name))[1] = auth.uid()::text
+```
 
-## Deploy on Vercel
+## Allow upload
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Name: `Allow upload`
+- Allowed operation: `INSERT`
+- Target roles: (default)
+- Policy definition:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```sql
+bucket_id = 'Files' and (storage.foldername(name))[1] = auth.uid()::text
+```
+
+## Delete own files
+
+- Name: `Delete own files`
+- Allowed operation: `SELECT`, `DELETE`
+- Target roles: (default)
+- Policy definition:
+
+```sql
+bucket_id = 'Files' and owner_id = auth.uid()::text and (storage.foldername(name))[1] = auth.uid()::text
+```
