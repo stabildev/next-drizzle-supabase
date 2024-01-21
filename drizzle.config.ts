@@ -1,13 +1,10 @@
 import 'dotenv/config'
 import { type Config } from 'drizzle-kit'
 
-const { DB_NAME, DB_HOST, DB_PORT, DB_ADMIN_USER, DB_ADMIN_PASSWORD } =
-  process.env
+const { DB_ADMIN_URL } = process.env
 
-if (!DB_NAME || !DB_HOST || !DB_PORT || !DB_ADMIN_USER || !DB_ADMIN_PASSWORD) {
-  throw new Error(
-    'Missing DB_NAME, DB_HOST, DB_PORT, DB_ADMIN_USER or DB_ADMIN_PASSWORD environment variable'
-  )
+if (!DB_ADMIN_URL) {
+  throw new Error('Missing DB_ADMIN_URL environment variable')
 }
 
 export default {
@@ -15,11 +12,7 @@ export default {
   out: './drizzle',
   driver: 'pg',
   dbCredentials: {
-    host: DB_HOST,
-    port: +DB_PORT,
-    database: DB_NAME,
-    user: DB_ADMIN_USER,
-    password: DB_ADMIN_PASSWORD,
+    connectionString: DB_ADMIN_URL,
   },
   schemaFilter: ['public'],
 } satisfies Config

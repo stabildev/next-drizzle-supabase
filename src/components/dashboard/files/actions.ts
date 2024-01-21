@@ -17,7 +17,9 @@ export const getUserFiles = async () => {
   const userId = (await supabase.auth.getUser()).data.user?.id
 
   if (!userId) {
-    throw new Error('User not found')
+    return {
+      error: 'You must be logged in to view your files',
+    }
   }
 
   const { data, error } = await supabase.storage

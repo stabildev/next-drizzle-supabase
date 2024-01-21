@@ -9,26 +9,17 @@ import { type Session } from '@/lib/supabase'
 
 import * as schema from './schema'
 
-const { DB_NAME, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, JWT_SECRET } =
-  process.env
+const { DB_URL, JWT_SECRET } = process.env
 
-if (!DB_NAME || !DB_HOST || !DB_PORT || !DB_USER || !DB_PASSWORD) {
-  throw new Error(
-    'Missing DB_NAME, DB_HOST, DB_PORT, DB_USER or DB_PASSWORD environment variable'
-  )
+if (!DB_URL) {
+  throw new Error('Missing DB_URL environment variable')
 }
 
 if (!JWT_SECRET) {
   throw new Error('Missing JWT_SECRET environment variable')
 }
 
-const psql = postgres({
-  host: DB_HOST,
-  port: +DB_PORT,
-  database: DB_NAME,
-  username: DB_USER,
-  password: DB_PASSWORD,
-})
+const psql = postgres(DB_URL)
 
 const db = drizzle(psql, { schema })
 
@@ -38,16 +29,26 @@ type TxType = PgTransaction<
   ExtractTablesWithRelations<typeof schema>
 >
 
-export const authDB = <T>(session: Session, fn: (tx: TxType) => Promise<T>) => {
+export const withSession = <T>(
+  session: Session,
+  fn: (tx: TxType) => Promise<T>
+) => {
   const jwtClaims = jwt.verify(session.access_token, JWT_SECRET)
 
   if (!jwtClaims) {
     throw new Error('Invalid access token')
   }
 
+  const claims = JSON.stringify(jwtClaims)
+  const userId = jwtClaims.sub as string
+  console.log('claims', claims)
+
   return db.transaction(async (tx) => {
     await tx.execute(
-      sql`SET LOCAL request.jwt.claims = "${sql.raw(JSON.stringify(jwtClaims))}"`
+      sql`SELECT set_config('request.jwt.claim', '${sql.raw(claims)}', TRUE)`
+    )
+    await tx.execute(
+      sql`SELECT set_config('request.jwt.claim.sub', '${sql.raw(userId)}', TRUE)`
     )
 
     return fn(tx)
