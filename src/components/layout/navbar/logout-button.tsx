@@ -8,7 +8,7 @@ export const LogoutButton = () => {
   const signOut = async () => {
     'use server'
 
-    const res = await createClient(cookies()).auth.signOut()
+    const res = await createClient(await cookies()).auth.signOut()
 
     if (res.error) {
       return

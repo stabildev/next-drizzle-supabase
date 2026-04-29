@@ -35,20 +35,19 @@ export const withSession = <T>(
 ) => {
   const jwtClaims = jwt.verify(session.access_token, JWT_SECRET)
 
-  if (!jwtClaims) {
+  if (typeof jwtClaims !== 'object' || !jwtClaims.sub) {
     throw new Error('Invalid access token')
   }
 
   const claims = JSON.stringify(jwtClaims)
-  const userId = jwtClaims.sub as string
-  console.log('claims', claims)
+  const userId = jwtClaims.sub
 
   return db.transaction(async (tx) => {
     await tx.execute(
-      sql`SELECT set_config('request.jwt.claim', '${sql.raw(claims)}', TRUE)`
+      sql`SELECT set_config('request.jwt.claim', ${claims}, TRUE)`
     )
     await tx.execute(
-      sql`SELECT set_config('request.jwt.claim.sub', '${sql.raw(userId)}', TRUE)`
+      sql`SELECT set_config('request.jwt.claim.sub', ${userId}, TRUE)`
     )
 
     return fn(tx)

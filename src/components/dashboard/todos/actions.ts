@@ -8,7 +8,7 @@ import { todos } from '@/db/schema'
 import { getSession } from '@/lib/supabase'
 
 export const getTodos = async () => {
-  const session = await getSession(cookies())
+  const session = await getSession(await cookies())
 
   if (!session) {
     throw new Error('No session')
@@ -20,7 +20,7 @@ export const getTodos = async () => {
 }
 
 export const addTodo = async (text: string) => {
-  const session = await getSession(cookies())
+  const session = await getSession(await cookies())
 
   if (!session) {
     throw new Error('No session')
@@ -37,7 +37,7 @@ export const addTodo = async (text: string) => {
 }
 
 export const setDone = async (id: string, done: boolean) => {
-  const session = await getSession(cookies())
+  const session = await getSession(await cookies())
 
   if (!session) {
     throw new Error('No session')
@@ -53,7 +53,7 @@ export const setDone = async (id: string, done: boolean) => {
 }
 
 export const deleteTodo = async (id: string) => {
-  const session = await getSession(cookies())
+  const session = await getSession(await cookies())
 
   if (!session) {
     throw new Error('No session')

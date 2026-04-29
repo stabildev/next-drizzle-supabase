@@ -1,11 +1,13 @@
 import { SignupForm } from '@/components/auth/signup-form'
 
-const SignupPage = ({
+const SignupPage = async ({
   searchParams,
 }: {
-  searchParams: { message: string }
+  searchParams: Promise<{ message?: string }>
 }) => {
-  return <SignupForm message={searchParams.message} />
+  const { message } = await searchParams
+
+  return <SignupForm message={message} />
 }
 
 export default SignupPage

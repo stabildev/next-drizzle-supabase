@@ -1,7 +1,6 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { v4 as uuid } from 'uuid'
 
 import { createClient } from '@/lib/supabase'
 
@@ -12,7 +11,7 @@ if (!STORAGE_BUCKET) {
 }
 
 export const getUserFiles = async () => {
-  const supabase = createClient(cookies())
+  const supabase = createClient(await cookies())
 
   const userId = (await supabase.auth.getUser()).data.user?.id
 
@@ -42,7 +41,7 @@ export type FileObject = NonNullable<
 >[0]
 
 export const deleteFile = async (file: FileObject) => {
-  const supabase = createClient(cookies())
+  const supabase = createClient(await cookies())
   const userId = (await supabase.auth.getUser()).data.user?.id
 
   const { data, error } = await supabase.storage
@@ -58,7 +57,7 @@ export const deleteFile = async (file: FileObject) => {
 
 export const uploadFile = async (formData: FormData) => {
   // Upload file
-  const supabase = createClient(cookies())
+  const supabase = createClient(await cookies())
   const user = (await supabase.auth.getUser()).data.user
 
   if (!user) {
@@ -69,7 +68,7 @@ export const uploadFile = async (formData: FormData) => {
 
   const file = formData.get('file') as File
 
-  const path = `${user.id}/${file.name}.${uuid()}`
+  const path = `${user.id}/${file.name}.${crypto.randomUUID()}`
 
   const { data, error } = await supabase.storage
     .from(STORAGE_BUCKET)

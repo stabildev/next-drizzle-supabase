@@ -61,7 +61,9 @@ const FileCard = ({ file, deleteFile }: FileCardProps) => {
         <CardTitle>{file.name}</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow sm:pt-3">
-        Uploaded at {format(new Date(file.created_at), 'dd/MM/yyyy')}
+        {file.created_at
+          ? `Uploaded at ${format(new Date(file.created_at), 'dd/MM/yyyy')}`
+          : 'Upload date unavailable'}
       </CardContent>
       <CardFooter className="flex w-full flex-row justify-end border-t pb-3 pt-3">
         <DeleteButton onDelete={() => deleteFile(file)} />

@@ -18,7 +18,9 @@ export const LoginForm = ({ message }: Props) => {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
-    const { error } = await createClient(cookies()).auth.signInWithPassword({
+    const { error } = await createClient(
+      await cookies()
+    ).auth.signInWithPassword({
       email,
       password,
     })

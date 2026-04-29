@@ -9,7 +9,7 @@ import { getCurrentUser } from '@/lib/supabase'
 import { LogoutButton } from './logout-button'
 
 export const Navbar = async () => {
-  const user = await getCurrentUser(cookies())
+  const user = await getCurrentUser(await cookies())
 
   return (
     <nav className="fixed top-0 z-10 flex h-16 w-full items-center justify-center border-b bg-background/50 backdrop-blur">

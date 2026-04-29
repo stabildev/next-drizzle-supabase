@@ -8,7 +8,7 @@ import { TodoList } from '@/components/dashboard/todos/todo-list'
 import { getCurrentUser } from '@/lib/supabase'
 
 const Page = async () => {
-  const user = await getCurrentUser(cookies())
+  const user = await getCurrentUser(await cookies())
 
   if (!user) {
     return <div>Not logged in</div>

@@ -22,7 +22,7 @@ export const SignupForm = ({ message }: Props) => {
       return redirect('/login?message=Email and password are required')
     }
 
-    const { error } = await createClient(cookies()).auth.signUp({
+    const { error } = await createClient(await cookies()).auth.signUp({
       email,
       password,
     })

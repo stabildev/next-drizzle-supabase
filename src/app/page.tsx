@@ -5,7 +5,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { getCurrentUser } from '@/lib/supabase'
 
 const Page = async () => {
-  const user = await getCurrentUser(cookies())
+  const user = await getCurrentUser(await cookies())
 
   return (
     <main className="flex max-w-6xl flex-1 flex-col items-center justify-center gap-8">
